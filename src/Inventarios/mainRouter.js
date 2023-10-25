@@ -7,10 +7,10 @@ const movementsRoute = require("./routes/movementsRoute");
 const functionsRoute = require("./routes/FunctionsRoute");
 const exportsRoute = require("./routes/exportsRoute");
 
-app.use("/movements", movementsRoute);
-app.use("/inventory", inventoryRoute);
-app.use("/materials", materialsRoute);
-app.use("/functions", functionsRoute);
-app.use("/exports", exportsRoute);
+router.use("/movements", movementsRoute);
+router.use("/inventory", inventoryRoute);
+router.use("/materials", materialsRoute);
+router.use("/functions", functionsRoute);
+router.use("/exports", exportsRoute);
 
 module.exports = router;

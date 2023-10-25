@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../../utilities/db");
 
 const putMovement = (req, res) => {
     db.query("UPDATE relations SET Active = ? WHERE MovementId=(select Id from movements where job = ?) and MaterialId=(select Id from materials where Code = ?)", [req.body.Active, req.body.Job, req.body.Code], (err, result) => {

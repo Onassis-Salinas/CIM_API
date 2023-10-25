@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../../utilities/db");
 
 const getMaterial = (req, res) => {
     db.query("SELECT Code, Description, Measurement FROM Materials WHERE Code = ?", [req.body.Material], (err, rows, fields) => {

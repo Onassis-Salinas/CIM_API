@@ -3,8 +3,8 @@ const cors = require("cors");
 const app = express();
 const port = 3000;
 
-const inventoryRoute = require("./src/Inventarios/mainRouter.js");
-const employeeRoute = require("./src/Empleados/mainRouter.js");
+const inventoryRoute = require("./src/Inventarios/mainRouter");
+const employeeRoute = require("./src/Empleados/mainRouter");
 
 
 app.use((req, res, next) => {
@@ -13,7 +13,7 @@ app.use((req, res, next) => {
 });
 app.use(
     cors({
-        origin: "http://192.168.0.42:5000",
+        origin: ["http://192.168.0.42:5000", "http://192.168.0.42:5173"],
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
     })

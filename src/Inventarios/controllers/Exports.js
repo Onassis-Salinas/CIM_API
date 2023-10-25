@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../../utilities/db");
 const exceljs = require("exceljs");
 
 const exportInventory = async (req, res) => {

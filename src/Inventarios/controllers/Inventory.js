@@ -1,4 +1,4 @@
-const db = require("../database/db");
+const db = require("../../utilities/db");
 
 const getInventory = (req, res) => {
     db.query("SELECT materials.Code, materials.Description, inventory.Amount, materials.Measurement FROM inventory JOIN materials ON inventory.MaterialId = materials.Id", (err, rows, fields) => {
