@@ -43,6 +43,14 @@ const getProductivityEmployeesByArea = async (req, res) => {
     });
 };
 
+const getIncidences = async (req, res) => {
+    db.query("Select Code, Name from incidences", async (err, rows, fields) => {
+        if (err) return sendError(res, err);
+
+        res.send(rows);
+    });
+};
+
 //make a new function
 
 module.exports = {
@@ -51,4 +59,5 @@ module.exports = {
     getCapturedAreas,
     getEmployeesByArea,
     getProductivityEmployeesByArea,
+    getIncidences
 };

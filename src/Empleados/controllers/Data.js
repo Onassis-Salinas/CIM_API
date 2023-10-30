@@ -58,8 +58,19 @@ const updateEmployee = async (req, res) => {
     });
 };
 
+const quitEmployee = async (req, res) => {
+    const [firstDate, secondDate] = getWeekDays(req.body.Date);
+
+    db.query("update employees set Active = 0, QuitDate = ? where Id = ?", [secondDate, req.body.EmployeeId], async (err, rows) => {
+        if (err) return sendError(res, err);
+
+        res.send("Completed")
+    });
+};
+
 module.exports = {
     getEmployeData,
     addEmployee,
     updateEmployee,
+    quitEmployee,
 };
