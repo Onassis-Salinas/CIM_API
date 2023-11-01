@@ -1,13 +1,21 @@
 //Functions
 
 function getWeekDays(dateString) {
+    if (dateString instanceof Date) {
+        dateString = dateString.toISOString().split("T")[0];
+    } else if (dateString.includes("T")) {
+        dateString = dateString.split("T")[0];
+    }
+
+    console.log(dateString);
     const date = new Date(dateString);
     const dayOfWeek = date.getDay();
 
-    const monday = new Date();
-    monday.setDate(date.getDate() - (dayOfWeek - 1));
-    const friday = new Date();
-    friday.setDate(date.getDate() - (dayOfWeek - 5));
+    const monday = new Date(date);
+    monday.setDate(date.getDate() - dayOfWeek);
+
+    const friday = new Date(date);
+    friday.setDate(date.getDate() - (dayOfWeek - 4));
 
     return [monday.toISOString().split("T")[0], friday.toISOString().split("T")[0]];
 }
