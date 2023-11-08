@@ -113,7 +113,7 @@ const changeEmployeAssistance = async (req, res) => {
 };
 
 const createSingleAssitance = async (req, res) => {
-    const [firstDate, secondDate] = getWeekDays(req.body.AdmissionDate);
+    const [firstDate, secondDate] = getWeekDays(req.body["Fecha de ingreso"]);
 
     console.log(req.body.EmployeeId);
     db.query(querys[5], [firstDate, req.body.EmployeeId], async (err, rows) => {

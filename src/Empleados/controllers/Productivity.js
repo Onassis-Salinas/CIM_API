@@ -175,6 +175,7 @@ const createProductivityWeek = async (req, res) => {
 const createSingleProductivity = async (req, res) => {
     db.query(querys[4], [req.body.AssistanceId], async (err, rows) => {
         if (err) return sendError(res, err);
+        res.send("completed")
     });
 };
 

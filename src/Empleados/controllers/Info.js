@@ -50,6 +50,16 @@ const getAssistanceInfo = async (req, res) => {
         res.send(rows);
     });
 };
+const getAreaAssistanceInfo = async (req, res) => {
+    const [firstDate, secondDate] = getWeekDays(req.body.Date);
+    let dayNumber = getDayNumber(req.body.Date);
+
+    db.query("SELECT (select name from incidences where id = incidenceid?) as incidence, COUNT(*) as quantity FROM assistance WHERE date = ? and employeeId in (select id from employees where areaId = (select id from areas where Name = ?)) GROUP BY incidenceid?", [dayNumber, firstDate, req.body.Area, dayNumber], async (err, rows, fields) => {
+        if (err) return sendError(res, err);
+
+        res.send(rows);
+    });
+};
 
 const getemployeeTemplate = async (req, res) => {
     db.query("SELECT value from general where Name = 'Plantilla'", async (err, rows, fields) => {
@@ -100,4 +110,5 @@ module.exports = {
     getAssistanceInfo,
     getEmployeeRotation,
     getemployeeTemplate,
+    getAreaAssistanceInfo,
 };

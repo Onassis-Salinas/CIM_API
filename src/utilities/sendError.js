@@ -1,4 +1,4 @@
-function sendError(res, err, info=undefined) {
+function sendError(res, err, info = undefined) {
     let listOfErrors = {
         1064: "Error de sql",
         1048: "Dato Invalido",
@@ -6,7 +6,9 @@ function sendError(res, err, info=undefined) {
         1146: "Error de codigo: Tabla inexistente",
         1292: "Fecha incorrecta",
         1406: "Dato muy largo",
-        1062: "Dato duplicado"
+        1062: "Dato duplicado",
+        1366: "Dato numerico invalido",
+        1265: "Dato invalido",
     };
 
     console.log(err.errno);
