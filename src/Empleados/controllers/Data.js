@@ -6,11 +6,21 @@ const { getWeekDays } = require("../utilities");
 const querys = [
     `select Id, Name as Nombre, (Select Name from positions where positions.Id =employees.PositionId) as Posicion, NoEmpleado as 'No. Empleado',
      (Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia',
-     EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', Vacations as Vacaciones,
+     EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', 
      BornLocation as 'Lugar de nacimiento', Genre as Genero, Sons as Hijos, ClinicNo as 'Numero de clinica', Email, Number as 'Numero de telefono', Direction as Direccion,
      Bank as Banco, InfonavitNo as 'Numero de infonavit', InfonavitFee as 'Cuota fija de infonavit', InfonavitDiscount as 'Descuento de infonavit', PositionType as 'Tipo de posicion',
-     HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS'
-     from employees where Active = 1`,
+     HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS',
+
+     (
+     COALESCE((SELECT SUM(incidenceid0) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid0 = 5), 0) +
+     COALESCE((SELECT SUM(incidenceid1) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid1 = 5), 0) +
+     COALESCE((SELECT SUM(incidenceid2) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid2 = 5), 0) +
+     COALESCE((SELECT SUM(incidenceid3) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid3 = 5), 0) +
+     COALESCE((SELECT SUM(incidenceid4) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid4 = 5), 0)
+     ) / 5 as vacaciones
+
+     from employees
+      where Active = 1`, //ya que me den de baja porfavor, que es esta aberracion de query?
 
     `insert into employees 
      ( Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, Name, NoEmpleado, PositionId, RFC, AreaId,BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, Infonavitfee, InfonavitDiscount, PositionType, HYR, CIM, Shift, NominaSalary, IMMSSalary ) 
@@ -38,7 +48,7 @@ const getEmployeData = async (req, res) => {
 };
 
 const addEmployee = async (req, res) => {
-console.log(req.body)
+    console.log(req.body);
 
     db.query(
         querys[1],
