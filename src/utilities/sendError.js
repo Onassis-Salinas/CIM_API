@@ -10,10 +10,16 @@ function sendError(res, err, info = undefined) {
         1366: "Dato numerico invalido",
         1265: "Dato invalido",
     };
+    console.log("--------------------------------------------------------");
+    console.log(err);
+    console.log("--------------------------------------------------------")
+    console.log({
+        number: err.errno,
+        code: err.code,
+        sqlMessage: err.sqlMessage,
+    });
+    console.log("--------------------------------------------------------")
 
-    console.log(err.errno);
-    console.log(err.code);
-    console.log(err.sqlMessage);
     res.status(500).send({ error: listOfErrors[err.errno], info: info });
 }
 
