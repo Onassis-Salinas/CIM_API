@@ -9,6 +9,7 @@ const dbConfig = {
     connectionLimit: 10,
     queueLimit: 0,
 };
+
 const pool = mysql.createPool(dbConfig);
 console.log("Conected to DB");
 

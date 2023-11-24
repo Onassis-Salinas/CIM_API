@@ -6,6 +6,7 @@ const app = express();
 const port = process.env.API_PORT || 3000;
 
 const inventoryRoute = require("./src/Inventarios/mainRouter");
+const generalRoute = require("./src/General/mainRouter");
 const employeeRoute = require("./src/Empleados/mainRouter");
 
 app.use((req, res, next) => {
@@ -24,6 +25,7 @@ app.use(
 app.use(express.json());
 app.use("/inventory", inventoryRoute);
 app.use("/employees", employeeRoute);
+app.use("/general", generalRoute);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
