@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -11,17 +12,18 @@ const employeeRoute = require("./src/Empleados/mainRouter");
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Headers", "Content-Type");
+    res.header("Access-Control-Allow-Credentials", "true");
     next();
 });
 
 app.use(
     cors({
         origin: ["http://192.168.0.42:5000", "http://192.168.0.42:5173"],
-        methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true,
     })
 );
 
+app.use(cookieParser());
 app.use(express.json());
 app.use("/inventory", inventoryRoute);
 app.use("/employees", employeeRoute);

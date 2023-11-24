@@ -10,6 +10,6 @@ router.post("/assistanceinfo", getAssistanceInfo);
 router.post("/areaassistanceinfo", getAreaAssistanceInfo);
 router.post("/employeerotation", getEmployeeRotation);
 router.get("/activeemployees", getActiveemployees);
-router.get("/employeeTemplate", validateToken,getemployeeTemplate);
+router.get("/employeeTemplate",validateToken, getemployeeTemplate);
 
 module.exports = router;

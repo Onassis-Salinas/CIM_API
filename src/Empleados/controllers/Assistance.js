@@ -50,8 +50,6 @@ const querys = [
 
     `INSERT INTO assistance (EmployeeId, AreaId, PositionId, Date, incidenceId0, incidenceId1, incidenceId2, incidenceId3, incidenceId4)
     SELECT Id, AreaId, PositionId, ?, 1,1,1,1,1 FROM employees where id = ?; `,
-
-    `update employees set vacations = vacations - ? where id = (select employeeId from assistance where id = ?)`,
 ];
 
 const getdayAssistance = async (req, res) => {
@@ -87,8 +85,6 @@ const createAssistanceWeek = async (req, res) => {
 };
 
 const changeEmployeAssistance = async (req, res) => {
-    let startingVacationsAmount;
-    let finalVacationsAmount;
     let answer;
     db.query(querys[4], [req.body.Id], async (err, rows) => {
         if (err) return sendError(res, err, rows);
@@ -101,13 +97,7 @@ const changeEmployeAssistance = async (req, res) => {
         db.query(querys[4], [req.body.Id], async (err, rows) => {
             if (err) return sendError(res, err, rows);
 
-            answer = rows;
-            finalVacationsAmount = [rows[0].Lunes, rows[0].Martes, rows[0].Miercoles, rows[0].Jueves, rows[0].Viernes].filter((e) => e === "V").length;
-
-            db.query(querys[6], [finalVacationsAmount - startingVacationsAmount, req.body.Id], (err, rows) => {
-                if (err) return sendError(res, err, rows);
-                res.send(answer);
-            });
+            res.send(rows);
         });
     });
 };
