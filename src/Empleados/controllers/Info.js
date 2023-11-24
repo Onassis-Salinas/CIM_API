@@ -1,4 +1,5 @@
 const db = require("../../utilities/db");
+const sql = require("../../utilities/db2");
 const sendError = require("../../utilities/sendError");
 const { getWeekDays, getDayNumber } = require("../utilities");
 
@@ -62,11 +63,12 @@ const getAreaAssistanceInfo = async (req, res) => {
 };
 
 const getemployeeTemplate = async (req, res) => {
-    db.query("SELECT value from general where Name = 'Plantilla'", async (err, rows, fields) => {
-        if (err) return sendError(res, err);
-
-        res.send(rows[0]);
-    });
+    try {
+        const [rows] = await sql.query("SELECT value from general where Name = 'Plantilla'");
+        res.send(rows);
+    } catch (err) {
+        return sendError(err);
+    }
 };
 
 const getEmployeeRotation = async (req, res) => {

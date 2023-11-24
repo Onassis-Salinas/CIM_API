@@ -27,7 +27,7 @@ const loginUser = async (req, res) => {
             if (match) {
                 const user = { UserName: rows[0].UserName };
                 const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "24h" });
-                res.json({ token });
+                res.send({ token });
             } else {
                 res.send("Contraseña incorrecta");
             }
