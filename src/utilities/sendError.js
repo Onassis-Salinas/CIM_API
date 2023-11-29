@@ -1,4 +1,6 @@
-function sendError(res, err, info = undefined) {
+function sendError(res, err) {
+    if (typeof err === "string") return res.status(500).send(err);
+
     try {
         let listOfErrors = {
             1064: "Error de sql",

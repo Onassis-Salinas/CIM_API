@@ -4,10 +4,17 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
+    if (!req.body.Password) return res.send("Falta contraseña");
+    if (!req.body.UserName) return res.send("Falta usuario");
+    req.body.Perm_assistance = validatePermissionFormat(res, req.body.Perm_assistance);
+    req.body.Perm_employees = validatePermissionFormat(res, req.body.Perm_employees);
+    req.body.Perm_productivity = validatePermissionFormat(res, req.body.Perm_productivity);
+
     const hash = await bcrypt.hash(req.body.Password, 10);
 
     try {
-        const [rows, fields] = await sql.query("insert into Users (UserName, Password) values (?, ?)", [req.body.UserName, hash]);
+        await sql.query("insert into Users (UserName, Password, Perm_assistance, Perm_employees, Perm_productivity) values (?, ?, ?, ?, ?)", [req.body.UserName, hash, req.body.Perm_assistance, req.body.Perm_employees, req.body.Perm_productivity]);
+
         res.send(`${req.body.UserName} Registrado`);
     } catch (err) {
         return sendError(res, err);
@@ -30,9 +37,18 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "24h" });
 
         res.cookie("jwt", token, { sameSite: "strict", httpOnly: true }).send("logged in");
+        console.log("User logged in");
     } catch (err) {
         return sendError(res, err);
     }
+};
+
+const validatePermissionFormat = (res, permission) => {
+    if (!permission) return "n";
+
+    if (permission === "r" || permission === "w") return permission;
+
+    sendError(res, "Permiso no valido");
 };
 
 module.exports = { loginUser, registerUser };

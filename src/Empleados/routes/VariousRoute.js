@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { getAreas, getPositions, getCapturedAreas, getEmployeesByArea,getProductivityEmployeesByArea,getIncidences } = require("../controllers/Various");
+const { getAreas, getPositions, getCapturedAreas, getEmployeesByArea, getProductivityEmployeesByArea, getIncidences } = require("../controllers/Various");
 
 router.get("/positions", getPositions);
 router.get("/areas", getAreas);
