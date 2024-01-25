@@ -1,6 +1,6 @@
 const db = require("../../utilities/db");
 const sendError = require("../../utilities/sendError");
-const { getWeekDays, separateAreas } = require("../utilities");
+const { getWeekDays, separateAreas } = require("../../utilities/functions");
 const { createProductivityWeek, createSingleProductivity } = require("../controllers/Productivity");
 
 const querys = [
@@ -54,7 +54,7 @@ const querys = [
 
 const getdayAssistance = async (req, res) => {
     db.query(querys[0], [req.body.Date], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         res.send(rows);
     });
@@ -64,7 +64,7 @@ const getWeekAssistance = async (req, res) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     db.query(querys[1], [firstDate], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         res.send(separateAreas(rows));
     });
@@ -87,15 +87,15 @@ const createAssistanceWeek = async (req, res) => {
 const changeEmployeAssistance = async (req, res) => {
     let answer;
     db.query(querys[4], [req.body.Id], async (err, rows) => {
-        if (err) return sendError(res, err, rows);
+        if (err) return sendError(res, 500, err, rows);
         startingVacationsAmount = [rows[0].Lunes, rows[0].Martes, rows[0].Miercoles, rows[0].Jueves, rows[0].Viernes].filter((e) => e === "V").length;
     });
 
     db.query(querys[3], [req.body.Lunes, req.body.Martes, req.body.Miercoles, req.body.Jueves, req.body.Viernes, req.body.Id], async (err, rows) => {
-        if (err) return sendError(res, err, rows);
+        if (err) return sendError(res, 500, err, rows);
 
         db.query(querys[4], [req.body.Id], async (err, rows) => {
-            if (err) return sendError(res, err, rows);
+            if (err) return sendError(res, 500, err, rows);
 
             res.send(rows);
         });
@@ -107,7 +107,7 @@ const createSingleAssitance = async (req, res) => {
 
     console.log(req.body.EmployeeId);
     db.query(querys[5], [firstDate, req.body.EmployeeId], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         req.body.AssistanceId = rows.insertId;
         createSingleProductivity(req, res);

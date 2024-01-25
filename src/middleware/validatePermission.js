@@ -1,8 +1,10 @@
+const sendError = require("../utilities/sendError");
+
 const validatePermission = (permissionRequired, rw) => (req, res, next) => {
     const permissionLevel = getPermissionLevel(req.user["Perm_" + permissionRequired]);
     const requiredPermissionLevel = getPermissionLevel(rw);
 
-    if (permissionLevel < requiredPermissionLevel) return res.status(401).send("No estas autorizado");
+    if (permissionLevel < requiredPermissionLevel) return sendError(res, 403);
     next();
 };
 

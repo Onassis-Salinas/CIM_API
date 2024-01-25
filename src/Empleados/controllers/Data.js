@@ -1,7 +1,8 @@
 const db = require("../../utilities/db");
+const sql = require("../../utilities/db2");
 const sendError = require("../../utilities/sendError");
 const { createSingleAssitance } = require("../controllers/Assistance");
-const { getWeekDays } = require("../utilities");
+const { getWeekDays } = require("../../utilities/functions");
 
 const querys = [
     `select Id, Name as Nombre, (Select Name from positions where positions.Id =employees.PositionId) as Posicion, NoEmpleado as 'No. Empleado',
@@ -11,16 +12,11 @@ const querys = [
      Bank as Banco, InfonavitNo as 'Numero de infonavit', InfonavitFee as 'Cuota fija de infonavit', InfonavitDiscount as 'Descuento de infonavit', PositionType as 'Tipo de posicion',
      HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS',
 
-     (
-     COALESCE((SELECT SUM(incidenceid0) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid0 = 5), 0) +
-     COALESCE((SELECT SUM(incidenceid1) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid1 = 5), 0) +
-     COALESCE((SELECT SUM(incidenceid2) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid2 = 5), 0) +
-     COALESCE((SELECT SUM(incidenceid3) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid3 = 5), 0) +
-     COALESCE((SELECT SUM(incidenceid4) FROM assistance WHERE employeeid = employees.Id AND assistance.incidenceid4 = 5), 0)
-     ) / 5 as vacaciones
+     (SELECT SUM(WithSalary) from vacationreq where EmployeeId = employees.Id) as 'vacaciones pagadas',
+     (SELECT SUM(WithoutSalary) from vacationreq where EmployeeId = employees.Id) as 'vacaciones sin pagar'
 
      from employees
-      where Active = 1`, //ya que me den de baja porfavor, que es esta aberracion de query?
+      where Active = 1`,
 
     `insert into employees 
      ( Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, Name, NoEmpleado, PositionId, RFC, AreaId,BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, Infonavitfee, InfonavitDiscount, PositionType, HYR, CIM, Shift, NominaSalary, IMMSSalary ) 
@@ -37,10 +33,12 @@ const querys = [
 
 const getEmployeData = async (req, res) => {
     db.query(querys[0], [req.body.Material], async (err, rows, fields) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         rows.forEach((row) => {
             row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
+            row["vacaciones pagadas"] = row["vacaciones pagadas"] || 0;
+            row["vacaciones sin pagar'"] = row["vacaciones sin pagar'"] || 0;
         });
 
         res.send(rows);
@@ -84,7 +82,7 @@ const addEmployee = async (req, res) => {
             req.body["Salario integrado IMMS"],
         ],
         async (err, rows, fields) => {
-            if (err) return sendError(res, err);
+            if (err) return sendError(res, 500, err);
 
             const [firstDate, secondDate] = getWeekDays(req.body["Fecha de ingreso"]);
             req.body.EmployeeId = rows.insertId;
@@ -136,10 +134,10 @@ const updateEmployee = async (req, res) => {
             req.body.Id,
         ],
         async (err, rows) => {
-            if (err) return sendError(res, err);
+            if (err) return sendError(res, 500, err);
 
             db.query(querys[3], [req.body.Id], async (err, rows) => {
-                if (err) return sendError(res, err);
+                if (err) return sendError(res, 500, err);
 
                 rows.forEach((row) => {
                     row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
@@ -155,10 +153,19 @@ const quitEmployee = async (req, res) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     db.query("update employees set Active = 0, QuitDate = ? where Id = ?", [secondDate, req.body.EmployeeId], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         res.send("Completed");
     });
+};
+
+const makeVacationReq = async (req, res) => {
+    try {
+        sql.query("insert into vacationreq (EmployeeId, Days, StartDate, EndDate, RequestDate) values ((select Id from employees where NoEmpleado = ?),?,?,?,?)", [parseInt(req.body.EmployeeNo), req.body.Days, req.body.StartDate, req.body.EndDate, "2024-01-17"]);
+        res.send("completed");
+    } catch (err) {
+        sendError(res, err);
+    }
 };
 
 module.exports = {
@@ -166,4 +173,5 @@ module.exports = {
     addEmployee,
     updateEmployee,
     quitEmployee,
+    makeVacationReq,
 };

@@ -1,32 +1,11 @@
-function sendError(res, err) {
-    if (typeof err === "string") return res.status(500).send(err);
+function sendError(res, status, err) {
+    console.log(err);
 
-    try {
-        let listOfErrors = {
-            1064: "Error de sql",
-            1048: "Dato Invalido",
-            1054: "Dato Invalido",
-            1146: "Error de codigo: Tabla inexistente",
-            1292: "Fecha incorrecta",
-            1406: "Dato muy largo",
-            1062: "Dato duplicado",
-            1366: "Dato numerico invalido",
-            1265: "Dato invalido",
-        };
-        console.log("--------------------------------------------------------");
-        console.log(err);
-        console.log("--------------------------------------------------------");
-        console.log({
-            number: err.errno,
-            code: err.code,
-            sqlMessage: err.sqlMessage,
-        });
-        console.log("--------------------------------------------------------");
+    let errMessage = err;
 
-        res.status(500).send({ error: listOfErrors[err.errno], info: info });
-    } catch {
-        res.send(err); // send the error directly
-    }
+    if (status === 403) errMessage = "No cuentas con los permisos necesarios";
+    if (status === 500) errMessage = "Error en el servidor";
+
+    return res.status(status).send({ message: errMessage });
 }
-
 module.exports = sendError;

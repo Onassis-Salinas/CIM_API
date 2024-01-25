@@ -1,5 +1,5 @@
 const db = require("../../utilities/db");
-const { getWeekDays, separateAreas } = require("../utilities");
+const { getWeekDays, separateAreas } = require("../../utilities/functions");
 const sendError = require("../../utilities/sendError");
 
 const querys = [
@@ -14,7 +14,7 @@ const querys = [
     3Code0, 3Goal0, 3Produced0, 3Code1, 3Goal1, 3Produced1, 3Code2, 3Goal2, 3Produced2, 3Comment,
     (SELECT i.Code FROM incidences i WHERE i.Id = a.IncidenceId4) AS Incidence5,
     4Code0, 4Goal0, 4Produced0, 4Code1, 4Goal1, 4Produced1, 4Code2, 4Goal2, 4Produced2, 4Comment
-    FROM employeeProductivity ep
+    FROM employeeproductivity ep
     JOIN assistance a ON a.Id = ep.assistanceId
     JOIN employees e on a.employeeId = e.id
     JOIN positions p on a.positionId = p.id
@@ -32,7 +32,7 @@ const querys = [
     3Code0, 3Goal0, 3Produced0, 3Code1, 3Goal1, 3Produced1, 3Code2, 3Goal2, 3Produced2, 3Comment,
     (SELECT i.Code FROM incidences i WHERE i.Id = a.IncidenceId4) AS Incidence5,
     4Code0, 4Goal0, 4Produced0, 4Code1, 4Goal1, 4Produced1, 4Code2, 4Goal2, 4Produced2, 4Comment
-    FROM employeeProductivity ep
+    FROM employeeproductivity ep
     JOIN assistance a ON a.Id = ep.assistanceId
     JOIN employees e on a.employeeId = e.id
     JOIN positions p on a.positionId = p.id
@@ -60,7 +60,7 @@ const querys = [
     3Code0, 3Goal0, 3Produced0, 3Code1, 3Goal1, 3Produced1, 3Code2, 3Goal2, 3Produced2, 3Comment,
     (SELECT i.Code FROM incidences i WHERE i.Id = a.IncidenceId4) AS Incidence5,
     4Code0, 4Goal0, 4Produced0, 4Code1, 4Goal1, 4Produced1, 4Code2, 4Goal2, 4Produced2, 4Comment
-    FROM employeeProductivity ep
+    FROM employeeproductivity ep
     JOIN assistance a ON a.Id = ep.assistanceId
     JOIN employees e on a.employeeId = e.id
     JOIN positions p on a.positionId = p.id
@@ -72,7 +72,7 @@ const getWeekProductivity = async (req, res) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     db.query(querys[0], [firstDate], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
         res.send(separateAreas(rows));
     });
 };
@@ -81,7 +81,7 @@ const getSingle = async (req, res) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     db.query(querys[1], [req.body.NoEmpleado, firstDate], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
 
         if (rows.length === 0) {
             db.query(querys[5], [req.body.Area, req.body.Name, firstDate], async (err, rows) => {
@@ -156,7 +156,7 @@ const updateData = async (req, res) => {
         async (err, rows) => {
             console.log(err);
 
-            if (err) return sendError(res, err);
+            if (err) return sendError(res, 500, err);
 
             res.send(rows);
         }
@@ -167,15 +167,15 @@ const createProductivityWeek = async (req, res) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     db.query(querys[3], [firstDate], async (err, rows) => {
-        if (err) return sendError(res, err);
+        if (err) return sendError(res, 500, err);
         res.send(rows);
     });
 };
 
 const createSingleProductivity = async (req, res) => {
     db.query(querys[4], [req.body.AssistanceId], async (err, rows) => {
-        if (err) return sendError(res, err);
-        res.send("completed")
+        if (err) return sendError(res, 500, err);
+        res.send("completed");
     });
 };
 
