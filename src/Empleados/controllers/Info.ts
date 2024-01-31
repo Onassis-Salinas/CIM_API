@@ -1,20 +1,20 @@
-const db = require("../../utilities/db");
-const sql = require("../../utilities/db2");
-const sendError = require("../../utilities/sendError");
-const { getWeekDays, getDayNumber } = require("../../utilities/functions");
+import sql from "../../utilities/db2";
+import sendError from "../../utilities/sendError";
+import { getWeekDays, getDayNumber } from "../../utilities/functions";
+import { Response, Request } from "express";
 
-const getWeeklyFires = async (req, res) => {
+export const getWeeklyFires = async (req: Request, res: Response) => {
     const [firstDate] = getWeekDays(req.body.Date);
 
     try {
         const [rows] = await sql.query("SELECT COUNT(*) as count FROM assistance where Date = ? and 6 IN (incidenceId0, incidenceId1, incidenceId2, incidenceId3, incidenceId4)", [firstDate]);
         res.send(rows);
     } catch (err) {
-        return sendError(res, 500, err, err);
+        return sendError(res, 500, err);
     }
 };
 
-const getWeeklyHires = async (req, res) => {
+export const getWeeklyHires = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
     try {
@@ -25,8 +25,8 @@ const getWeeklyHires = async (req, res) => {
     }
 };
 
-const getDailyIncidence = async (req, res) => {
-    const [firstDate] = getWeekDfays(req.body.Date);
+export const getDailyIncidence = async (req: Request, res: Response) => {
+    const [firstDate] = getWeekDays(req.body.Date);
     let dayNumber = getDayNumber(req.body.Date);
 
     try {
@@ -37,7 +37,7 @@ const getDailyIncidence = async (req, res) => {
     }
 };
 
-const getActiveemployees = async (req, res) => {
+export const getActiveemployees = async (req: Request, res: Response) => {
     try {
         const [rows] = await sql.query("SELECT COUNT(*) as count FROM employees where Active = 1");
         res.send(rows);
@@ -46,7 +46,7 @@ const getActiveemployees = async (req, res) => {
     }
 };
 
-const getAssistanceInfo = async (req, res) => {
+export const getAssistanceInfo = async (req: Request, res: Response) => {
     const [firstDate] = getWeekDays(req.body.Date);
     let dayNumber = getDayNumber(req.body.Date);
 
@@ -58,19 +58,24 @@ const getAssistanceInfo = async (req, res) => {
     }
 };
 
-const getAreaAssistanceInfo = async (req, res) => {
+export const getAreaAssistanceInfo = async (req: Request, res: Response) => {
     const [firstDate] = getWeekDays(req.body.Date);
     let dayNumber = getDayNumber(req.body.Date);
 
     try {
-        const [rows] = await sql.query("SELECT (select name from incidences where id = incidenceid?) as incidence, COUNT(*) as quantity FROM assistance WHERE date = ? and employeeId in (select id from employees where areaId = (select id from areas where Name = ?)) GROUP BY incidenceid?", [dayNumber, firstDate, req.body.Area, dayNumber]);
+        const [rows] = await sql.query("SELECT (select name from incidences where id = incidenceid?) as incidence, COUNT(*) as quantity FROM assistance WHERE date = ? and employeeId in (select id from employees where areaId = (select id from areas where Name = ?)) GROUP BY incidenceid?", [
+            dayNumber,
+            firstDate,
+            req.body.Area,
+            dayNumber,
+        ]);
         res.send(rows);
     } catch (err) {
         return sendError(res, 500, err);
     }
 };
 
-const getemployeeTemplate = async (req, res) => {
+export const getemployeeTemplate = async (req: Request, res: Response) => {
     try {
         const [rows] = await sql.query("SELECT value from general where Name = 'Plantilla'");
         res.send(rows);
@@ -79,7 +84,7 @@ const getemployeeTemplate = async (req, res) => {
     }
 };
 
-const getEmployeeRotation = async (req, res) => {
+export const getEmployeeRotation = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
     const dayMiliSeconds = 24 * 60 * 60 * 1000;
 
@@ -104,15 +109,4 @@ const getEmployeeRotation = async (req, res) => {
     } catch (err) {
         return sendError(res, 500, err);
     }
-};
-
-module.exports = {
-    getWeeklyFires,
-    getWeeklyHires,
-    getDailyIncidence,
-    getActiveemployees,
-    getAssistanceInfo,
-    getEmployeeRotation,
-    getemployeeTemplate,
-    getAreaAssistanceInfo,
 };

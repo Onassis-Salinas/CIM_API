@@ -1,9 +1,10 @@
-const db = require("../../utilities/db");
+import db from "../../utilities/db";
 const sendError = require("../../utilities/sendError");
 const { getWeekDays, separateAreas } = require("../../utilities/functions");
-const { createProductivityWeek, createSingleProductivity } = require("../controllers/Productivity");
+const { createProductivityWeek, createSingleProductivity } = require("./Productivity");
+import { Response, Request } from "express";
 
-const querys = [
+export const querys = [
     `SELECT employees.Name as employee, incidences.Code as incidence, assistance.Date, areas.Name as area, positions.Name as position
     FROM assistance
     JOIN incidences ON incidences.Id = assistance.IncidenceId 
@@ -52,31 +53,31 @@ const querys = [
     SELECT Id, AreaId, PositionId, ?, 1,1,1,1,1 FROM employees where id = ?; `,
 ];
 
-const getdayAssistance = async (req, res) => {
-    db.query(querys[0], [req.body.Date], async (err, rows) => {
+export const getdayAssistance = async (req: Request, res: Response) => {
+    db.query(querys[0], [req.body.Date], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         res.send(rows);
     });
 };
 
-const getWeekAssistance = async (req, res) => {
+export const getWeekAssistance = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
-    db.query(querys[1], [firstDate], async (err, rows) => {
+    db.query(querys[1], [firstDate], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         res.send(separateAreas(rows));
     });
 };
 
-const createAssistanceWeek = async (req, res) => {
+export const createAssistanceWeek = async (req: Request, res: Response) => {
     let error;
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
-    db.query("select Id from assistance where Date = ? ", [firstDate], async (err, rows) => {
+    db.query("select Id from assistance where Date = ? ", [firstDate], async (err: any, rows: any) => {
         if (rows.length > 0) return res.send("ya existen datos");
 
-        db.query(querys[2], [firstDate], async (err, rows) => {
+        db.query(querys[2], [firstDate], async (err: any, rows: any) => {
             if (err) return (error = err);
 
             createProductivityWeek(req, res);
@@ -84,29 +85,28 @@ const createAssistanceWeek = async (req, res) => {
     });
 };
 
-const changeEmployeAssistance = async (req, res) => {
-    let answer;
-    db.query(querys[4], [req.body.Id], async (err, rows) => {
-        if (err) return sendError(res, 500, err, rows);
-        startingVacationsAmount = [rows[0].Lunes, rows[0].Martes, rows[0].Miercoles, rows[0].Jueves, rows[0].Viernes].filter((e) => e === "V").length;
+export const changeEmployeAssistance = async (req: Request, res: Response) => {
+    db.query(querys[4], [req.body.Id], async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
+        const startingVacationsAmount = [rows[0].Lunes, rows[0].Martes, rows[0].Miercoles, rows[0].Jueves, rows[0].Viernes].filter((e) => e === "V").length;
     });
 
-    db.query(querys[3], [req.body.Lunes, req.body.Martes, req.body.Miercoles, req.body.Jueves, req.body.Viernes, req.body.Id], async (err, rows) => {
-        if (err) return sendError(res, 500, err, rows);
+    db.query(querys[3], [req.body.Lunes, req.body.Martes, req.body.Miercoles, req.body.Jueves, req.body.Viernes, req.body.Id], async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
 
-        db.query(querys[4], [req.body.Id], async (err, rows) => {
-            if (err) return sendError(res, 500, err, rows);
+        db.query(querys[4], [req.body.Id], async (err: any, rows: any) => {
+            if (err) return sendError(res, 500, err);
 
             res.send(rows);
         });
     });
 };
 
-const createSingleAssitance = async (req, res) => {
+export const createSingleAssitance = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body["Fecha de ingreso"]);
 
     console.log(req.body.EmployeeId);
-    db.query(querys[5], [firstDate, req.body.EmployeeId], async (err, rows) => {
+    db.query(querys[5], [firstDate, req.body.EmployeeId], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         req.body.AssistanceId = rows.insertId;
@@ -114,17 +114,8 @@ const createSingleAssitance = async (req, res) => {
     });
 };
 
-const getEmployeAssistance = async (req, res) => {
-    db.query(querys[4], [req.body.Id], async (err, rows) => {
+export const getEmployeAssistance = async (req: Request, res: Response) => {
+    db.query(querys[4], [req.body.Id], async (err: any, rows: any) => {
         res.send(rows);
     });
-};
-
-module.exports = {
-    getdayAssistance,
-    getWeekAssistance,
-    getEmployeAssistance,
-    createAssistanceWeek,
-    changeEmployeAssistance,
-    createSingleAssitance,
 };

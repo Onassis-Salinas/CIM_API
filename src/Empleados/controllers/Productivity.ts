@@ -1,6 +1,7 @@
-const db = require("../../utilities/db");
-const { getWeekDays, separateAreas } = require("../../utilities/functions");
-const sendError = require("../../utilities/sendError");
+import db from "../../utilities/db";
+import { getWeekDays, separateAreas } from "../../utilities/functions";
+import sendError from "../../utilities/sendError";
+import { Response, Request } from "express";
 
 const querys = [
     `SELECT ep.Id, e.Name as Empleado,(select Name From areas where id = a.AreaId) as Area, p.Name as Posicion, a.Date as Fecha,
@@ -68,23 +69,23 @@ const querys = [
 `,
 ];
 
-const getWeekProductivity = async (req, res) => {
+export const getWeekProductivity = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
-    db.query(querys[0], [firstDate], async (err, rows) => {
+    db.query(querys[0], [firstDate], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
         res.send(separateAreas(rows));
     });
 };
 
-const getSingle = async (req, res) => {
+export const getSingle = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
-    db.query(querys[1], [req.body.NoEmpleado, firstDate], async (err, rows) => {
+    db.query(querys[1], [req.body.NoEmpleado, firstDate], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         if (rows.length === 0) {
-            db.query(querys[5], [req.body.Area, req.body.Name, firstDate], async (err, rows) => {
+            db.query(querys[5], [req.body.Area, req.body.Name, firstDate], async (err: any, rows: any) => {
                 res.send(rows);
             });
         }
@@ -92,7 +93,8 @@ const getSingle = async (req, res) => {
         if (rows.length > 0) res.send(rows);
     });
 };
-const updateData = async (req, res) => {
+
+export const updateData = async (req: Request, res: Response) => {
     const a = req.body;
     console.log(a);
     db.query(
@@ -153,7 +155,7 @@ const updateData = async (req, res) => {
             a["4Produced2"],
             a.Id,
         ],
-        async (err, rows) => {
+        async (err: any, rows: any) => {
             console.log(err);
 
             if (err) return sendError(res, 500, err);
@@ -163,26 +165,18 @@ const updateData = async (req, res) => {
     );
 };
 
-const createProductivityWeek = async (req, res) => {
+export const createProductivityWeek = async (req: Request, res: Response) => {
     const [firstDate, secondDate] = getWeekDays(req.body.Date);
 
-    db.query(querys[3], [firstDate], async (err, rows) => {
+    db.query(querys[3], [firstDate], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
         res.send(rows);
     });
 };
 
-const createSingleProductivity = async (req, res) => {
-    db.query(querys[4], [req.body.AssistanceId], async (err, rows) => {
+export const createSingleProductivity = async (req: Request, res: Response) => {
+    db.query(querys[4], [req.body.AssistanceId], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
         res.send("completed");
     });
-};
-
-module.exports = {
-    getWeekProductivity,
-    createSingleProductivity,
-    createProductivityWeek,
-    updateData,
-    getSingle,
 };

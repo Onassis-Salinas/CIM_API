@@ -1,4 +1,4 @@
-function getWeekDays(dateString) {
+export function getWeekDays(dateString: any) {
     if (dateString instanceof Date) {
         dateString = dateString.toISOString().split("T")[0];
     } else if (dateString.includes("T")) {
@@ -18,16 +18,16 @@ function getWeekDays(dateString) {
     return [monday.toISOString().split("T")[0], friday.toISOString().split("T")[0]];
 }
 
-function getDayNumber(date) {
+export function getDayNumber(date: any) {
     let dateObject = new Date(date);
     return dateObject.getDay() - 1;
 }
 
-function separateAreas(rows) {
+export function separateAreas(rows: any) {
     let tableExists;
-    let tables = [];
+    let tables: Array<any> = [];
 
-    rows.forEach((row) => {
+    rows.forEach((row: any) => {
         tableExists = false;
         tables.forEach((table, i) => {
             if (row.Area === table.Name) {
@@ -42,9 +42,3 @@ function separateAreas(rows) {
 
     return tables;
 }
-
-module.exports = {
-    getWeekDays,
-    separateAreas,
-    getDayNumber,
-};

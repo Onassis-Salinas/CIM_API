@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { getWeeklyFires, getWeeklyHires, getDailyIncidence, getActiveemployees, getAssistanceInfo, getEmployeeRotation, getemployeeTemplate, getAreaAssistanceInfo } = require("../controllers/Info");
+import { getWeeklyFires, getWeeklyHires, getDailyIncidence, getActiveemployees, getAssistanceInfo, getEmployeeRotation, getemployeeTemplate, getAreaAssistanceInfo } from "../controllers/Info";
 
 router.post("/weeklyfires", getWeeklyFires);
 router.post("/weeklyhires", getWeeklyHires);
@@ -11,4 +11,4 @@ router.post("/employeerotation", getEmployeeRotation);
 router.get("/activeemployees", getActiveemployees);
 router.get("/employeeTemplate", getemployeeTemplate);
 
-module.exports = router;
+export default router;

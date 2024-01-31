@@ -1,24 +1,25 @@
-const express = require("express");
+import express from "express";
+import { Response, Request } from "express";
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const db = require("./src/utilities/db");
+import db from "./src/utilities/db";
 require("dotenv").config();
 
 const app = express();
 const port = process.env.API_PORT || 3000;
 
-const generalRoute = require("./src/General/mainRouter");
-const employeeRoute = require("./src/Empleados/mainRouter");
-const validateToken = require("./src/middleware/validateToken");
+import generalRoute from "./src/General/mainRouter";
+import employeeRoute from "./src/Empleados/mainRouter";
+import validateToken from "./src/middleware/validateToken";
 
-app.use("/test", (req, res) => {
-    db.query("select version()", (err, rows, fields) => {
+app.use("/test", (req: Request, res: Response) => {
+    db.query("select version()", (err: any, rows: any, fields: any) => {
         if (err) return res.send(err);
         res.send(rows);
     });
 });
 
-app.use((req, res, next) => {
+app.use((req: any, res: any, next: any) => {
     res.header("Access-Control-Allow-Headers", "Content-Type");
     res.header("Access-Control-Allow-Credentials", "true");
     next();

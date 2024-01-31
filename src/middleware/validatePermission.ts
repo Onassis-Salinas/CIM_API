@@ -1,6 +1,11 @@
-const sendError = require("../utilities/sendError");
+import sendError from "../utilities/sendError";
+import { Response, Request, NextFunction } from "express";
 
-const validatePermission = (permissionRequired, rw) => (req, res, next) => {
+interface CustomRequest extends Request {
+    user?: any;
+}
+
+const validatePermission = (permissionRequired: any, rw: any) => (req: CustomRequest, res: Response, next: NextFunction) => {
     const permissionLevel = getPermissionLevel(req.user["Perm_" + permissionRequired]);
     const requiredPermissionLevel = getPermissionLevel(rw);
 
@@ -8,7 +13,7 @@ const validatePermission = (permissionRequired, rw) => (req, res, next) => {
     next();
 };
 
-const getPermissionLevel = (permission) => {
+const getPermissionLevel = (permission: any) => {
     if (permission === "r") {
         return 1;
     } else if (permission === "w") {
@@ -18,4 +23,4 @@ const getPermissionLevel = (permission) => {
     }
 };
 
-module.exports = validatePermission;
+export default validatePermission;

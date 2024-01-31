@@ -1,12 +1,13 @@
 const sendError = require("../utilities/sendError");
+import { Response, Request, NextFunction } from "express";
 
-const traduction = {
+const traduction: any = {
     Password: "Contraseña",
     UserName: "Nombre de usuario",
 };
 
-const validateReq = (data) => (req, res, next) => {
-    const dataMissing = data.some((required) => {
+const validateReq = (data: any) => (req: Request, res: Response, next: NextFunction) => {
+    const dataMissing = data.some((required: any) => {
         if (!req.body[required]) sendError(res, 400, `Falta el siguiente dato: ${traduction[required] || required}`);
         return !req.body[required];
     });
@@ -14,4 +15,4 @@ const validateReq = (data) => (req, res, next) => {
     if (!dataMissing) next();
 };
 
-module.exports = validateReq;
+export default validateReq

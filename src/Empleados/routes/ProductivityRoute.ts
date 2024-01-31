@@ -1,12 +1,12 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { getWeekProductivity, createProductivityWeek, updateData, getSingle } = require("../controllers/Productivity");
-const validatePermission = require("../../middleware/validatePermission");
+import { getWeekProductivity, createProductivityWeek, updateData, getSingle } from "../controllers/Productivity";
+import validatePermission from "../../middleware/validatePermission";
 
 router.post("/week", validatePermission("productivity", "r"), getWeekProductivity);
 router.post("/createweek", validatePermission("productivity", "w"), createProductivityWeek);
 router.post("/getsingle", validatePermission("productivity", "r"), getSingle);
 router.put("/", validatePermission("productivity", "w"), updateData);
 
-module.exports = router;
+export default router;
