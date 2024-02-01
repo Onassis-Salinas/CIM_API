@@ -6,147 +6,204 @@ import { getWeekDays } from "../../utilities/functions";
 import { Response, Request } from "express";
 
 export const querys = [
-    `select Id, CONCAT(Name, ' ', PaternalLastName, ' ', MaternalLastName) AS Nombre, (Select Name from positions where positions.Id =employees.PositionId) as Posicion, NoEmpleado as 'No. Empleado',
+    `select Id, Name as Nombre, PaternalLastName as 'Apellido paterno', MaternalLastName as 'Apellido materno', (Select Name from positions where positions.Id =employees.PositionId) as Posicion, NoEmpleado as 'No. Empleado',
      (Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia',
      EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', 
      BornLocation as 'Lugar de nacimiento', Genre as Genero, Sons as Hijos, ClinicNo as 'Numero de clinica', Email, Number as 'Numero de telefono', Direction as Direccion,
      Bank as Banco, InfonavitNo as 'Numero de infonavit', InfonavitFee as 'Cuota fija de infonavit', InfonavitDiscount as 'Descuento de infonavit', PositionType as 'Tipo de posicion',
-     HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS',
+     HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS', Studies as Estudios, BornDate as FDNAC,
+     CivilStatus as 'Estado civil', Nationality as Nacionalidad, 
 
      (SELECT SUM(WithSalary) from vacationreq where EmployeeId = employees.Id) as 'vacaciones pagadas',
      (SELECT SUM(WithoutSalary) from vacationreq where EmployeeId = employees.Id) as 'vacaciones sin pagar'
 
      from employees
-      where Active = 1`,
+     where Active = 1`,
 
-    `insert into employees 
-     ( Name, PaternalLastName, MaternalLastName, Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, NoEmpleado, PositionId, RFC, AreaId,BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, Infonavitfee, InfonavitDiscount, PositionType, HYR, CIM, Shift, NominaSalary, IMMSSalary ) 
-     values ( ?, ?, ?, ?, ?, ?,  ?, ?, ?,  ?, ?, (select Id from positions where NoEmpleado = ?), ?, (select Id from areas where NoEmpleado = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO employees 
+    (NoEmpleado, Name, PaternalLastName, MaternalLastName, Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, RFC, BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, InfonavitFee, InfonavitDiscount, PositionType, HYR, CIM, Shift, NominaSalary, IMMSSalary, Studies, BornDate, Nationality, CivilStatus, PositionId, AreaId) 
+VALUES 
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT Id FROM positions WHERE NoEmpleado = ?), (SELECT Id FROM areas WHERE NoEmpleado = ?));
+`,
 
-    `update employees set
-     NoEmpleado = ?,  Name=?, PaternalLastName=?, MaternalLastName=?, PositionId = (select id from  positions where Name = ?), AreaId = (select id from  areas where Name = ?), NSS = ?, CURP = ?, RFC = ?, Blood = ?, Account = ?,
-     EmmergencyContact = ?, EmmergencyNumber = ?, AdmissionDate = ?, Vacations = ?, BornLocation = ?, Genre = ?, Sons = ?, ClinicNo = ?, Email = ?, Number = ?, Direction = ?, Bank = ?, 
-     InfonavitNo = ?, Infonavitfee = ?, InfonavitDiscount = ?, PositionType = ?, HYR = ?, CIM = ?, Shift = ?, NominaSalary = ?, IMMSSalary = ?
-     where Id = ? `,
+    `UPDATE employees SET
+    NoEmpleado = ?,  
+    Name = ?, 
+    PaternalLastName = ?, 
+    MaternalLastName = ?, 
+    NSS = ?, 
+    CURP = ?, 
+    RFC = ?, 
+    Blood = ?, 
+    Account = ?, 
+    EmmergencyContact = ?, 
+    EmmergencyNumber = ?, 
+    AdmissionDate = ?, 
+    BornLocation = ?, 
+    Genre = ?, 
+    Sons = ?, 
+    ClinicNo = ?, 
+    Email = ?, 
+    Number = ?, 
+    Direction = ?, 
+    Bank = ?, 
+    InfonavitNo = ?, 
+    Infonavitfee = ?, 
+    InfonavitDiscount = ?, 
+    PositionType = ?, 
+    HYR = ?, 
+    CIM = ?, 
+    Shift = ?, 
+    NominaSalary = ?, 
+    IMMSSalary = ?, 
+    Studies = ?,
+    BornDate = ?, 
+    Nationality = ?, 
+    CivilStatus = ?, 
+    PositionId = (SELECT id FROM positions WHERE Name = ?),
+    AreaId = (SELECT id FROM areas WHERE Name = ?)
+WHERE Id = ?`,
 
-    `select Id, NoEmpleado as 'No. Empleado', Name as Nombre,(Select Name from positions where positions.Id =employees.PositionId) as Posicion,(Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia', EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', Vacations as Vacaciones from employees where Id = ?`,
+    `select Id, NoEmpleado as 'No. Empleado', Name as Nombre,(Select Name from positions where positions.Id =employees.PositionId) as Posicion,(Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia', EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso' from employees where Id = ?`,
 ];
 
+const columnRenaming = {
+    "No. Empleado": "NoEmpleado",
+    Nombre: "Name",
+    "Apellido paterno": "PaternalLastName",
+    "Apellido materno": "MaternalLastName",
+    NSS: "NSS",
+    CURP: "CURP",
+    RFC: "RFC",
+    Sangre: "Blood",
+    Cuenta: "Account",
+    "Contacto de emergencia": "EmmergencyContact",
+    "Numero de emergencia": "EmmergencyNumber",
+    "Fecha de ingreso": "AdmissionDate",
+    "Lugar de nacimiento": "BornLocation",
+    Genero: "Genre",
+    Hijos: "Sons",
+    "Numero de clinica": "ClinicNo",
+    Email: "Email",
+    "Numero de telefono": "Number",
+    Direccion: "Direction",
+    Banco: "Bank",
+    "Numero de infonavit": "InfonavitNo",
+    "Cuota fija de infonavit": "InfonavitFee",
+    "Descuento de infonavit": "InfonavitDiscount",
+    "Tipo de posicion": "PositionType",
+    "Cambio de HYR": "HYR",
+    "Cambio de CIM": "CIM",
+    Turno: "Shift",
+    "Salario de nomina": "NominaSalary",
+    "Salario integrado IMMS": "IMMSSalary",
+    Estudios: "Studies",
+    FDNAC: "BornDate",
+    "Estado civil": "CivilStatus",
+    Nacionalidad: "Nationality",
+    Posicion: "PositionId",
+    Area: "AreaId",
+    Id: "Id",
+};
+
+interface EmployeeModel {
+    id?: number;
+    Nombre: string;
+    "Apellido paterno": string;
+    "Apellido materno": string;
+    "No. Empleado": string;
+    NSS: string;
+    CURP: string;
+    RFC: string;
+    Sangre: string;
+    Cuenta: string;
+    "Contacto de emergencia": string;
+    "Numero de emergencia": string;
+    "Fecha de ingreso": string;
+    "Lugar de nacimiento": string;
+    Genero: string;
+    Hijos: number;
+    "Numero de clinica": string;
+    Email: string;
+    "Numero de telefono": string;
+    Direccion: string;
+    Banco: string;
+    "Numero de infonavit": string;
+    "Cuota fija de infonavit": string;
+    "Descuento de infonavit": string;
+    "Tipo de posicion": string;
+    "Cambio de HYR": string;
+    "Cambio de CIM": string;
+    Turno: string;
+    "Salario de nomina": string;
+    "Salario integrado IMMS": string;
+    Estudios: string;
+    FDNAC: string;
+    "Estado civil": string;
+    Nacionalidad: string;
+    Posicion: string;
+    Area: string;
+}
+
 export const getEmployeData = async (req: Request, res: Response) => {
-    db.query(querys[0], [req.body.Material], async (err: any, rows: any) => {
+    db.query(querys[0], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         rows.forEach((row: any) => {
             row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
+            row["FDNAC"] = row["FDNAC"].toISOString().split("T")[0];
+            row["Cambio de HYR"] = row["Cambio de HYR"] ? row["Cambio de HYR"].toISOString().split("T")[0] : null;
+            row["Cambio de CIM"] = row["Cambio de CIM"] ? row["Cambio de CIM"].toISOString().split("T")[0] : null;
             row["vacaciones pagadas"] = row["vacaciones pagadas"] || 0;
-            row["vacaciones sin pagar'"] = row["vacaciones sin pagar'"] || 0;
+            row["vacaciones sin pagar"] = row["vacaciones sin pagar"] || 0;
         });
 
         res.send(rows);
     });
 };
 
+export const getEmployeeModel = (req: Request, res: Response) => {
+    const employeeBase: any = { ...columnRenaming };
+
+    for (const key of Object.keys(employeeBase)) {
+        employeeBase[key] = null;
+    }
+
+    res.send(employeeBase);
+};
+
 export const addEmployee = async (req: Request, res: Response) => {
     console.log(req.body);
 
-    db.query(
-        querys[1],
-        [
-            req.body.Cuenta,
-            req.body["Fecha de ingreso"],
-            req.body.Sangre,
-            req.body.CURP,
-            req.body["Contacto de emergencia"],
-            req.body["Numero de emergencia"],
-            req.body.NSS,
-            req.body["No. Empleado"],
-            req.body.Posicion,
-            req.body.RFC,
-            req.body.Area,
-            req.body["Lugar de nacimiento"],
-            req.body["Genero"],
-            req.body["Hijos"],
-            req.body["Numero de clinica"],
-            req.body["Email"],
-            req.body["Numero de telefono"],
-            req.body["Direccion"],
-            req.body["Banco"],
-            req.body["Numero de infonavit"],
-            req.body["Cuota fija de infonavit"],
-            req.body["Descuento de infonavit"],
-            req.body["Tipo de posicion"],
-            req.body["Cambio de HYR"],
-            req.body["Cambio de CIM"],
-            req.body["Turno"],
-            req.body["Salario de nomina"],
-            req.body["Salario integrado IMMS"],
-        ],
-        async (err: any, rows: any) => {
-            if (err) return sendError(res, 500, err);
+    db.query(querys[1], generateEmployeeBody(req.body), async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
 
-            const [firstDate, secondDate] = getWeekDays(req.body["Fecha de ingreso"]);
-            req.body.EmployeeId = rows.insertId;
-            db.query("select Id from assistance where Date = ?", [firstDate], async (err: any, rows: any) => {
-                if (rows.length === 0) return res.send("completed");
-                createSingleAssitance(req, res);
-            });
-        }
-    );
+        const [firstDate, secondDate] = getWeekDays(req.body["Fecha de ingreso"]);
+        req.body.EmployeeId = rows.insertId;
+        db.query("select Id from assistance where Date = ?", [firstDate], async (err: any, rows: any) => {
+            if (rows.length === 0) return res.send("completed");
+            createSingleAssitance(req, res);
+        });
+    });
 };
 
 export const updateEmployee = async (req: Request, res: Response) => {
     req.body["Cambio de HYR"] = req.body["Cambio de HYR"] ? req.body["Cambio de HYR"] : null;
     req.body["Cambio de CIM"] = req.body["Cambio de CIM"] ? req.body["Cambio de CIM"] : null;
 
-    db.query(
-        querys[2],
-        [
-            req.body["No. Empleado"],
-            req.body["Nombre"],
-            req.body["Posicion"],
-            req.body["Area"],
-            req.body["NSS"],
-            req.body["CURP"],
-            req.body["RFC"],
-            req.body["Sangre"],
-            req.body["Cuenta"],
-            req.body["Contacto de emergencia"],
-            req.body["Numero de emergencia"],
-            req.body["Fecha de ingreso"],
-            req.body["Vacaciones"],
-            req.body["Lugar de nacimiento"],
-            req.body["Genero"],
-            req.body["Hijos"],
-            req.body["Numero de clinica"],
-            req.body["Email"],
-            req.body["Numero de telefono"],
-            req.body["Direccion"],
-            req.body["Banco"],
-            req.body["Numero de infonavit"],
-            req.body["Cuota fija de infonavit"],
-            req.body["Descuento de infonavit"],
-            req.body["Tipo de posicion"],
-            req.body["Cambio de HYR"],
-            req.body["Cambio de CIM"],
-            req.body["Turno"],
-            req.body["Salario de nomina"],
-            req.body["Salario integrado IMMS"],
-            req.body.Id,
-        ],
-        async (err: any, rows: any) => {
+    db.query(querys[2], generateEmployeeBody(req.body), async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
+
+        db.query(querys[3], [req.body.Id], async (err: any, rows: any) => {
             if (err) return sendError(res, 500, err);
 
-            db.query(querys[3], [req.body.Id], async (err: any, rows: any) => {
-                if (err) return sendError(res, 500, err);
-
-                rows.forEach((row: any) => {
-                    row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
-                });
-
-                res.send(rows);
+            rows.forEach((row: any) => {
+                row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
             });
-        }
-    );
+
+            res.send(rows);
+        });
+    });
 };
 
 export const quitEmployee = async (req: Request, res: Response) => {
@@ -168,10 +225,11 @@ export const makeVacationReq = async (req: Request, res: Response) => {
     }
 };
 
-module.exports = {
-    getEmployeData,
-    addEmployee,
-    updateEmployee,
-    quitEmployee,
-    makeVacationReq,
+const generateEmployeeBody = (body: any) => {
+    const result: Array<any> = [];
+    const keys = Object.keys(columnRenaming);
+    for (const key of keys) {
+        result.push(body[key]);
+    }
+    return result;
 };
