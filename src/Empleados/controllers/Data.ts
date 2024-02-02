@@ -228,7 +228,21 @@ export const makeVacationReq = async (req: Request, res: Response) => {
 export const getDataForExcel = async (req: Request, res: Response) => {
     try {
         const [result] = await sql.query(querys[0]);
-        res.send(result);
+        const columnNames: any = {};
+
+        for (const key of Object.keys(result[1])) {
+            columnNames[key] = key;
+        }
+
+        for (const employee of result) {
+            for (const key of Object.keys(result[0])) {
+                console.log(employee[key]);
+                if (key.includes("Fecha") || employee[key] === "FDNAC") employee[key] = employee[key].toISOString().split("T")[0];
+            }
+        }
+
+        const finalResult = [columnNames, ...result];
+        res.send(finalResult);
     } catch (err) {
         sendError(res, 500, err);
     }
