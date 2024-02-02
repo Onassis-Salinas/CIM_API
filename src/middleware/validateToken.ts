@@ -7,7 +7,7 @@ interface CustomRequest extends Request {
 }
 
 const validateToken = (req: CustomRequest, res: Response, next: NextFunction) => {
-    if (req.path === "/general/users/login") return next();
+    if (req.path === "/general/users/login" || req.path.includes("excel")) return next();
 
     const token = req.cookies.jwt || req.header("Authorization");
     if (!token) return sendError(res, 401, "No se encontraron credenciales");

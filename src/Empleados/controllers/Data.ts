@@ -225,6 +225,15 @@ export const makeVacationReq = async (req: Request, res: Response) => {
     }
 };
 
+export const getDataForExcel = async (req: Request, res: Response) => {
+    try {
+        const [result] = await sql.query(querys[0]);
+        res.send(result);
+    } catch (err) {
+        sendError(res, 500, err);
+    }
+};
+
 const generateEmployeeBody = (body: any) => {
     const result: Array<any> = [];
     const keys = Object.keys(columnRenaming);
