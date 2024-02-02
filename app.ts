@@ -26,7 +26,7 @@ app.use((req: any, res: any, next: any) => {
 });
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: process.env.FRONT_URL || "http://localhost:5173",
     })
 );
 app.use(cookieParser());

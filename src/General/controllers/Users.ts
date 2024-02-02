@@ -51,7 +51,7 @@ export const loginUser = async (req: Request, res: Response) => {
         res.cookie("jwt", token, { sameSite: "strict", httpOnly: true }).send("logged in");
         console.log("User logged in");
     } catch (err) {
-        return sendError(res, 500);
+        return sendError(res, 500, err);
     }
 };
 
