@@ -37,9 +37,9 @@ export const getDailyIncidence = async (req: Request, res: Response) => {
     }
 };
 
-export const getActiveemployees = async (req: Request, res: Response) => {
+export const getActiveEmployees = async (req: Request, res: Response) => {
     try {
-        const [rows] = await sql.query("SELECT COUNT(*) as count FROM employees where Active = 1");
+        const [rows] = await sql.query("SELECT COUNT(*) as count FROM employees where Active = 1;");
         res.send(rows);
     } catch (err) {
         return sendError(res, 500, err);
@@ -97,7 +97,7 @@ export const getEmployeeRotation = async (req: Request, res: Response) => {
         [rows] = await sql.query("Select COUNT(*) as count from employees where quitDate >= ? and quitDate <= ? ", [initialDate, finalDate]);
         const fires = rows[0].count;
 
-        [rows] = rows[0].count[rows] = await sql.query("Select COUNT(*) as count from employees where admissionDate >= ? and quitDate <= ? ", [initialDate, finalDate]);
+        [rows] = await sql.query("Select COUNT(*) as count from employees where admissionDate >= ? and quitDate <= ? ", [initialDate, finalDate]);
         const hires = rows[0].count;
 
         [rows] = await sql.query("SELECT COUNT(*) as count FROM employees where Active = 1");

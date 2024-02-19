@@ -20,7 +20,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const hash = await bcrypt.hash(req.body.Password, 10);
 
     try {
-        await sql.query("insert into Users (UserName, Password, Perm_assistance, Perm_employees, Perm_productivity) values (?, ?, ?, ?, ?)", [req.body.UserName, hash, req.body.Perm_assistance, req.body.Perm_employees, req.body.Perm_productivity]);
+        await sql.query("insert into users (UserName, Password, Perm_assistance, Perm_employees, Perm_productivity) values (?, ?, ?, ?, ?)", [req.body.UserName, hash, req.body.Perm_assistance, req.body.Perm_employees, req.body.Perm_productivity]);
 
         res.send(`${req.body.UserName} Registrado`);
     } catch (err) {
@@ -51,7 +51,7 @@ export const loginUser = async (req: Request, res: Response) => {
         res.cookie("jwt", token, { sameSite: "strict", httpOnly: true }).send("logged in");
         console.log("User logged in");
     } catch (err) {
-        return sendError(res, 500, err);
+        sendError(res, 500, err);
     }
 };
 

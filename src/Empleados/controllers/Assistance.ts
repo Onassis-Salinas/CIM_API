@@ -1,8 +1,8 @@
 import db from "../../utilities/db";
-const sendError = require("../../utilities/sendError");
 const { getWeekDays, separateAreas } = require("../../utilities/functions");
 const { createProductivityWeek, createSingleProductivity } = require("./Productivity");
 import { Response, Request } from "express";
+import sendError from "../../utilities/sendError";
 
 export const querys = [
     `SELECT employees.Name as employee, incidences.Code as incidence, assistance.Date, areas.Name as area, positions.Name as position
@@ -78,7 +78,7 @@ export const createAssistanceWeek = async (req: Request, res: Response) => {
         if (rows.length > 0) return res.send("ya existen datos");
 
         db.query(querys[2], [firstDate], async (err: any, rows: any) => {
-            if (err) return (error = err);
+            if (err) return sendError(res, 500, err);
 
             createProductivityWeek(req, res);
         });

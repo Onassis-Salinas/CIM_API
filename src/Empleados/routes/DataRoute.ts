@@ -1,10 +1,11 @@
 import express from "express";
 const router = express.Router();
 
-import { getEmployeData, addEmployee, updateEmployee, quitEmployee, makeVacationReq, getEmployeeModel, getDataForExcel } from "../controllers/Data";
+import { getEmployeeData, addEmployee, updateEmployee, quitEmployee, makeVacationReq, getEmployeeModel, getDataForExcel,getInactiveEmployeeData } from "../controllers/Data";
 import validatePermission from "../../middleware/validatePermission";
 
-router.get("/", validatePermission("employees", "r"), getEmployeData);
+router.get("/", validatePermission("employees", "r"), getEmployeeData);
+router.get("/inactive", validatePermission("assistance", "r"), getInactiveEmployeeData);
 router.get("/excel", getDataForExcel);
 router.get("/model", validatePermission("employees", "r"), getEmployeeModel);
 router.post("/", validatePermission("employees", "w"), addEmployee);

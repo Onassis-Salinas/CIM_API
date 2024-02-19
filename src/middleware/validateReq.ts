@@ -1,4 +1,4 @@
-const sendError = require("../utilities/sendError");
+import sendError from "../utilities/sendError";
 import { Response, Request, NextFunction } from "express";
 
 const traduction: any = {
@@ -15,4 +15,4 @@ const validateReq = (data: any) => (req: Request, res: Response, next: NextFunct
     if (!dataMissing) next();
 };
 
-export default validateReq
+export default validateReq;

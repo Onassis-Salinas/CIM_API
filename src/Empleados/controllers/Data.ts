@@ -6,7 +6,7 @@ import { getWeekDays } from "../../utilities/functions";
 import { Response, Request } from "express";
 
 export const querys = [
-    `select Id, Name as Nombre, PaternalLastName as 'Apellido paterno', MaternalLastName as 'Apellido materno', (Select Name from positions where positions.Id =employees.PositionId) as Posicion, NoEmpleado as 'No. Empleado',
+    `select Id, NoEmpleado as 'No. Empleado', Name as Nombre, PaternalLastName as 'Apellido paterno', MaternalLastName as 'Apellido materno', (Select Name from positions where positions.Id =employees.PositionId) as Posicion, 
      (Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia',
      EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', 
      BornLocation as 'Lugar de nacimiento', Genre as Genero, Sons as Hijos, ClinicNo as 'Numero de clinica', Email, Number as 'Numero de telefono', Direction as Direccion,
@@ -65,6 +65,12 @@ VALUES
 WHERE Id = ?`,
 
     `select Id, NoEmpleado as 'No. Empleado', Name as Nombre,(Select Name from positions where positions.Id =employees.PositionId) as Posicion,(Select Name from areas where areas.Id =employees.AreaId) as Area  , NSS, CURP, RFC, Blood as Sangre, Account as Cuenta, EmmergencyContact as 'Contacto de emergencia', EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso' from employees where Id = ?`,
+
+    `select Id, NoEmpleado as 'No. Empleado', Name as Nombre, PaternalLastName as 'Apellido paterno', MaternalLastName as 'Apellido materno', (Select Name from positions where positions.Id =employees.PositionId) as Posicion, 
+    (Select Name from areas where areas.Id =employees.AreaId) as Area, QuitDate as "Fecha de baja", QuitStatus as Estado, QuitReason as "Motivo de baja", QuitNotes as "Nota"
+
+    from employees
+    where Active = 0`,
 ];
 
 const columnRenaming = {
@@ -145,17 +151,29 @@ interface EmployeeModel {
     Area: string;
 }
 
-export const getEmployeData = async (req: Request, res: Response) => {
+export const getEmployeeData = async (req: Request, res: Response) => {
     db.query(querys[0], async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
         rows.forEach((row: any) => {
-            row["Fecha de ingreso"] = row["Fecha de ingreso"].toISOString().split("T")[0];
-            row["FDNAC"] = row["FDNAC"].toISOString().split("T")[0];
-            row["Cambio de HYR"] = row["Cambio de HYR"] ? row["Cambio de HYR"].toISOString().split("T")[0] : null;
-            row["Cambio de CIM"] = row["Cambio de CIM"] ? row["Cambio de CIM"].toISOString().split("T")[0] : null;
-            row["vacaciones pagadas"] = row["vacaciones pagadas"] || 0;
-            row["vacaciones sin pagar"] = row["vacaciones sin pagar"] || 0;
+            row["Fecha de ingreso"] = row["Fecha de ingreso"] ? row["Fecha de ingreso"].toISOString().split("T")[0] : null;
+            row["FDNAC"] = row["FDNAC"] ? row["FDNAC"].toISOString().split("T")[0] : null;
+            row["Cambio de HYR"] = row["Cambio de HYR"] ? (row["Cambio de HYR"] ? row["Cambio de HYR"].toISOString().split("T")[0] : null) : null;
+            row["Cambio de CIM"] = row["Cambio de CIM"] ? (row["Cambio de CIM"] ? row["Cambio de CIM"].toISOString().split("T")[0] : null) : null;
+            row["vacaciones pagadas"] = row["vacaciones pagadas"] ? row["vacaciones pagadas"] || 0 : null;
+            row["vacaciones sin pagar"] = row["vacaciones sin pagar"] ? row["vacaciones sin pagar"] || 0 : null;
+        });
+
+        res.send(rows);
+    });
+};
+
+export const getInactiveEmployeeData = async (req: Request, res: Response) => {
+    db.query(querys[4], async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
+
+        rows.forEach((row: any) => {
+            row["Fecha de baja"] = row["Fecha de baja"] ? row["Fecha de baja"].toISOString().split("T")[0] : null;
         });
 
         res.send(rows);
@@ -173,8 +191,6 @@ export const getEmployeeModel = (req: Request, res: Response) => {
 };
 
 export const addEmployee = async (req: Request, res: Response) => {
-    console.log(req.body);
-
     db.query(querys[1], generateEmployeeBody(req.body), async (err: any, rows: any) => {
         if (err) return sendError(res, 500, err);
 
@@ -207,13 +223,13 @@ export const updateEmployee = async (req: Request, res: Response) => {
 };
 
 export const quitEmployee = async (req: Request, res: Response) => {
-    const [firstDate, secondDate] = getWeekDays(req.body.Date);
-
-    db.query("update employees set Active = 0, QuitDate = ? where Id = ?", [secondDate, req.body.EmployeeId], async (err: any, rows: any) => {
+    try {
+        const result = await sql.query("update employees set Active = 0, QuitDate = ?, QuitStatus = ?, QuitReason = ?, QuitNotes = ?  where Id = ?", [req.body.quitDate, req.body.quitStatus, req.body.quitReason, req.body.quitNote, req.body.Id]);
+        console.log(result);
+        res.send("completed");
+    } catch (err) {
         if (err) return sendError(res, 500, err);
-
-        res.send("Completed");
-    });
+    }
 };
 
 export const makeVacationReq = async (req: Request, res: Response) => {
