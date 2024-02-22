@@ -11,7 +11,7 @@ export const querys = [
      EmmergencyNumber as 'Numero de emergencia', AdmissionDate as 'Fecha de ingreso', 
      BornLocation as 'Lugar de nacimiento', Genre as Genero, Sons as Hijos, ClinicNo as 'Numero de clinica', Email, Number as 'Numero de telefono', Direction as Direccion,
      Bank as Banco, InfonavitNo as 'Numero de infonavit', InfonavitFee as 'Cuota fija de infonavit', InfonavitDiscount as 'Descuento de infonavit', PositionType as 'Tipo de posicion',
-     HYR as 'Cambio de HYR', CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS', Studies as Estudios, BornDate as FDNAC,
+     CIM as 'Cambio de CIM', Shift as Turno, NominaSalary as 'Salario de nomina', IMMSSalary as 'Salario integrado IMMS', Studies as Estudios, BornDate as FDNAC,
      CivilStatus as 'Estado civil', Nationality as Nacionalidad, 
 
      (SELECT SUM(WithSalary) from vacationreq where EmployeeId = employees.Id) as 'vacaciones pagadas',
@@ -21,7 +21,7 @@ export const querys = [
      where Active = 1`,
 
     `INSERT INTO employees 
-    (NoEmpleado, Name, PaternalLastName, MaternalLastName, Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, RFC, BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, InfonavitFee, InfonavitDiscount, PositionType, HYR, CIM, Shift, NominaSalary, IMMSSalary, Studies, BornDate, Nationality, CivilStatus, PositionId, AreaId) 
+    (NoEmpleado, Name, PaternalLastName, MaternalLastName, Account, AdmissionDate, Blood, CURP, EmmergencyContact, EmmergencyNumber, NSS, RFC, BornLocation, Genre, Sons, ClinicNo, Email, Number, Direction, Bank, InfonavitNo, InfonavitFee, InfonavitDiscount, PositionType, CIM, Shift, NominaSalary, IMMSSalary, Studies, BornDate, Nationality, CivilStatus, PositionId, AreaId) 
 VALUES 
     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT Id FROM positions WHERE NoEmpleado = ?), (SELECT Id FROM areas WHERE NoEmpleado = ?));
 `,
@@ -50,8 +50,7 @@ VALUES
     InfonavitNo = ?, 
     Infonavitfee = ?, 
     InfonavitDiscount = ?, 
-    PositionType = ?, 
-    HYR = ?, 
+    PositionType = ?,  
     CIM = ?, 
     Shift = ?, 
     NominaSalary = ?, 
@@ -98,7 +97,6 @@ const columnRenaming = {
     "Cuota fija de infonavit": "InfonavitFee",
     "Descuento de infonavit": "InfonavitDiscount",
     "Tipo de posicion": "PositionType",
-    "Cambio de HYR": "HYR",
     "Cambio de CIM": "CIM",
     Turno: "Shift",
     "Salario de nomina": "NominaSalary",
@@ -138,7 +136,6 @@ interface EmployeeModel {
     "Cuota fija de infonavit": string;
     "Descuento de infonavit": string;
     "Tipo de posicion": string;
-    "Cambio de HYR": string;
     "Cambio de CIM": string;
     Turno: string;
     "Salario de nomina": string;
@@ -158,7 +155,6 @@ export const getEmployeeData = async (req: Request, res: Response) => {
         rows.forEach((row: any) => {
             row["Fecha de ingreso"] = row["Fecha de ingreso"] ? row["Fecha de ingreso"].toISOString().split("T")[0] : null;
             row["FDNAC"] = row["FDNAC"] ? row["FDNAC"].toISOString().split("T")[0] : null;
-            row["Cambio de HYR"] = row["Cambio de HYR"] ? (row["Cambio de HYR"] ? row["Cambio de HYR"].toISOString().split("T")[0] : null) : null;
             row["Cambio de CIM"] = row["Cambio de CIM"] ? (row["Cambio de CIM"] ? row["Cambio de CIM"].toISOString().split("T")[0] : null) : null;
             row["vacaciones pagadas"] = row["vacaciones pagadas"] ? row["vacaciones pagadas"] || 0 : null;
             row["vacaciones sin pagar"] = row["vacaciones sin pagar"] ? row["vacaciones sin pagar"] || 0 : null;
@@ -204,7 +200,6 @@ export const addEmployee = async (req: Request, res: Response) => {
 };
 
 export const updateEmployee = async (req: Request, res: Response) => {
-    req.body["Cambio de HYR"] = req.body["Cambio de HYR"] ? req.body["Cambio de HYR"] : null;
     req.body["Cambio de CIM"] = req.body["Cambio de CIM"] ? req.body["Cambio de CIM"] : null;
 
     db.query(querys[2], generateEmployeeBody(req.body), async (err: any, rows: any) => {
