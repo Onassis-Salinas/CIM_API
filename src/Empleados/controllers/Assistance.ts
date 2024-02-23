@@ -15,6 +15,7 @@ export const querys = [
 
     `select 
     Id,
+    (select NoEmpleado from employees where employees.Id = assistance.EmployeeId) as "No. Empleado",
 	(select Name from employees where employees.Id = assistance.EmployeeId) as Nombre,
 	(select Name from areas where areas.Id = assistance.AreaId) as Area,
     (select Name from positions where positions.Id = assistance.PositionId) as Puesto,
@@ -23,7 +24,8 @@ export const querys = [
 	(select Code from incidences where incidences.Id = assistance.IncidenceId2) as Miercoles,
 	(select Code from incidences where incidences.Id = assistance.IncidenceId3) as Jueves,
 	(select Code from incidences where incidences.Id = assistance.IncidenceId4) as Viernes
-	from assistance where date = ?`,
+	from assistance where date = ?
+    order by Area, Puesto`,
 
     `INSERT INTO assistance (EmployeeId, AreaId, PositionId, Date, incidenceId0, incidenceId1, incidenceId2, incidenceId3, incidenceId4)
     SELECT Id, AreaId, PositionId, ?, 1,1,1,1,1 FROM employees where active = 1; `,
@@ -39,6 +41,7 @@ export const querys = [
 
     `select 
     Id,
+    (select NoEmpleado from employees where employees.Id = assistance.EmployeeId) as "No. Empleado",
 	(select Name from employees where employees.Id = assistance.EmployeeId) as Nombre,
 	(select Name from areas where areas.Id = assistance.AreaId) as Area,
     (select Name from positions where positions.Id = assistance.PositionId) as Puesto,

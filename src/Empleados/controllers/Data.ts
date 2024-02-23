@@ -247,7 +247,6 @@ export const getDataForExcel = async (req: Request, res: Response) => {
 
         for (const employee of result) {
             for (const key of Object.keys(result[0])) {
-                console.log(employee[key]);
                 if (key.includes("Fecha") || employee[key] === "FDNAC") employee[key] = employee[key].toISOString().split("T")[0];
             }
         }
@@ -257,6 +256,18 @@ export const getDataForExcel = async (req: Request, res: Response) => {
     } catch (err) {
         sendError(res, 500, err);
     }
+};
+
+export const getInactiveEmployeeDataForExcel = async (req: Request, res: Response) => {
+    db.query(querys[4], async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
+
+        rows.forEach((row: any) => {
+            row["Fecha de baja"] = row["Fecha de baja"] ? row["Fecha de baja"].toISOString().split("T")[0] : null;
+        });
+
+        res.send(rows);
+    });
 };
 
 const generateEmployeeBody = (body: any) => {
