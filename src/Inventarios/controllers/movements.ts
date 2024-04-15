@@ -1,5 +1,6 @@
 import db from "../../utilities/db";
 import { Response, Request } from "express";
+import sql from "../../utilities/db2";
 
 export const putMovement = (req: Request, res: Response) => {
     db.query("UPDATE relations SET Active = ? WHERE MovementId=(select Id from movements where job = ?) and MaterialId=(select Id from materials where Code = ?)", [req.body.Active, req.body.Job, req.body.Code], (err: any, rows: any) => {
@@ -19,25 +20,17 @@ export const putMovement = (req: Request, res: Response) => {
 };
 
 export const getExpo = (req: Request, res: Response) => {
-    db.query(
-        "Select movements.Due,  movements.Job,	materials.Code,  materials.Description, relations.Amount, relations.RealAmount, materials.Measurement, relations.Active From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where movements.Export = ? ORDER BY movements.Due DESC;",
-        [req.body.expo],
-        (err: any, rows: any) => {
-            if (err) return res.send({ error: "No se encontraron datos para la exportacion" });
-            res.send(rows);
-        }
-    );
+    db.query("Select movements.Due,  movements.Job,	materials.Code,  materials.Description, relations.Amount, relations.RealAmount, materials.Measurement, relations.Active From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where movements.Export = ? ORDER BY movements.Due DESC;", [req.body.expo], (err: any, rows: any) => {
+        if (err) return res.send({ error: "No se encontraron datos para la exportacion" });
+        res.send(rows);
+    });
 };
 
 export const getMaterial = (req: Request, res: Response) => {
-    db.query(
-        "Select movements.Due, movements.Export, movements.Job, relations.Amount, relations.RealAmount, relations.Active From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where materials.Code = ? ORDER BY movements.Due DESC, movements.Job DESC",
-        [req.body.material],
-        (err: any, rows: any) => {
-            if (err) return res.send({ error: "No se encontraron datos para el material" });
-            res.send(rows);
-        }
-    );
+    db.query("Select movements.Due, movements.Export, movements.Job, relations.Amount, relations.RealAmount, relations.Active From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where materials.Code = ? ORDER BY movements.Due DESC, movements.Job DESC", [req.body.material], (err: any, rows: any) => {
+        if (err) return res.send({ error: "No se encontraron datos para el material" });
+        res.send(rows);
+    });
 };
 
 export const updateAmount = (req: Request, res: Response) => {
@@ -91,35 +84,27 @@ export const postInput = (req: Request, res: Response) => {
                     db.query("INSERT INTO movements ( Due) VALUES (?)", [req.body.Date], (err: any, rows: any) => {
                         if (err) return res.send({ error: "Error al registrar el movimiento 2x" });
 
-                        db.query(
-                            "INSERT INTO relations (MaterialId, MovementId, Amount, RealAmount, Active) SELECT materials.Id, movements.Id, ?, ?,? FROM materials, movements WHERE materials.Code = ? AND movements.Job IS NULL AND movements.Due = ?",
-                            [req.body.Amount, req.body.Amount, req.body.Active, req.body.Material, req.body.Date],
-                            (err: any, rows: any) => {
-                                if (err) return res.send({ error: "Error al registrar la relación 1x" });
-
-                                db.query("UPDATE inventory SET Amount = Amount + ? WHERE MaterialId = (SELECT Id FROM materials WHERE Code = ?)", [req.body.Amount, req.body.Material], (err: any, rows: any) => {
-                                    if (err) return res.send({ error: "Error al actualizar el inventario 1x" });
-
-                                    res.send("succes");
-                                });
-                            }
-                        );
-                    });
-                } else {
-                    db.query(
-                        "INSERT INTO relations (MaterialId, MovementId, Amount, RealAmount, Active) SELECT materials.Id, movements.Id, ?, ?,? FROM materials, movements WHERE materials.Code = ? AND movements.Job IS NULL AND movements.Due = ?",
-                        [req.body.Amount, req.body.Amount, req.body.Active, req.body.Material, req.body.Date],
-                        (err: any, rows: any) => {
-                            console.log(err);
-                            if (err) return res.send({ error: "Error al registrar la relación 2x" });
+                        db.query("INSERT INTO relations (MaterialId, MovementId, Amount, RealAmount, Active) SELECT materials.Id, movements.Id, ?, ?,? FROM materials, movements WHERE materials.Code = ? AND movements.Job IS NULL AND movements.Due = ?", [req.body.Amount, req.body.Amount, req.body.Active, req.body.Material, req.body.Date], (err: any, rows: any) => {
+                            if (err) return res.send({ error: "Error al registrar la relación 1x" });
 
                             db.query("UPDATE inventory SET Amount = Amount + ? WHERE MaterialId = (SELECT Id FROM materials WHERE Code = ?)", [req.body.Amount, req.body.Material], (err: any, rows: any) => {
                                 if (err) return res.send({ error: "Error al actualizar el inventario 1x" });
 
                                 res.send("succes");
                             });
-                        }
-                    );
+                        });
+                    });
+                } else {
+                    db.query("INSERT INTO relations (MaterialId, MovementId, Amount, RealAmount, Active) SELECT materials.Id, movements.Id, ?, ?,? FROM materials, movements WHERE materials.Code = ? AND movements.Job IS NULL AND movements.Due = ?", [req.body.Amount, req.body.Amount, req.body.Active, req.body.Material, req.body.Date], (err: any, rows: any) => {
+                        console.log(err);
+                        if (err) return res.send({ error: "Error al registrar la relación 2x" });
+
+                        db.query("UPDATE inventory SET Amount = Amount + ? WHERE MaterialId = (SELECT Id FROM materials WHERE Code = ?)", [req.body.Amount, req.body.Material], (err: any, rows: any) => {
+                            if (err) return res.send({ error: "Error al actualizar el inventario 1x" });
+
+                            res.send("succes");
+                        });
+                    });
                 }
             });
         });
@@ -132,18 +117,20 @@ export const postOutput = (req: Request, res: Response) => {
     db.query("Select Id from materials where Code in (?)", [materials], (err: any, materialrows: any) => {
         if (err || materialrows.length !== materials.length) return res.send({ error: "Uno o varios de los materiales incorrectos" });
 
-        db.query("Insert into movements (job, Export, Due) values (?,?,?)", [req.body.data.Job, req.body.data.Export, req.body.data.Date], (err: any, rows: any) => {
+        db.query("Insert into movements (job, Export, Due) values (?,?,?)", [req.body.data.Job, req.body.data.Export, req.body.data.Date], async (err: any, rows: any) => {
             if (err) {
                 if (err.errno === 1062) return res.send({ error: "Job repetido" });
                 return res.send({ error: "job, exportacion o fecha incorrectos" });
             }
 
             for (const values of req.body.textboxes) {
-                db.query("insert into relations (MaterialId, MovementId, Amount, RealAmount) values ((select Id from materials where Code = ?),(select Id from movements where Job = ?),?,?)", [values.Material, req.body.data.Job, values.Amount, values.Amount], (err: any, relationrows: any) => {
-                    if (err) return res.send({ error: "Error al registar la relacion" });
-                    return res.send(rows);
-                });
+                try {
+                    await sql.query("insert into relations (MaterialId, MovementId, Amount, RealAmount) values ((select Id from materials where Code = ?),(select Id from movements where Job = ?),?,?)", [values.Material, req.body.data.Job, values.Amount, values.Amount]);
+                } catch (err) {
+                    return res.send(err);
+                }
             }
+            res.send(rows);
         });
     });
 };
