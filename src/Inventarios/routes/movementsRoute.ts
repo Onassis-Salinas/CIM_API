@@ -4,7 +4,6 @@ import { getExpo, getMaterial, postInput, postOutput, putMovement, updateAmount 
 
 router.put("/checked", putMovement);
 router.post("/Expo", getExpo);
-router.post("/Expo", getExpo);
 router.post("/material", getMaterial);
 router.post("/input", postInput);
 router.post("/output", postOutput);

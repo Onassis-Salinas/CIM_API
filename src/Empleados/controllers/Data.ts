@@ -237,25 +237,19 @@ export const makeVacationReq = async (req: Request, res: Response) => {
 };
 
 export const getDataForExcel = async (req: Request, res: Response) => {
-    try {
-        const [result] = await sql.query(querys[0]);
-        const columnNames: any = {};
+    db.query(querys[0], async (err: any, rows: any) => {
+        if (err) return sendError(res, 500, err);
 
-        for (const key of Object.keys(result[1])) {
-            columnNames[key] = key;
-        }
+        rows.forEach((row: any) => {
+            row["Fecha de ingreso"] = row["Fecha de ingreso"] ? row["Fecha de ingreso"].toISOString().split("T")[0] : null;
+            row["FDNAC"] = row["FDNAC"] ? row["FDNAC"].toISOString().split("T")[0] : null;
+            row["Cambio de CIM"] = row["Cambio de CIM"] ? (row["Cambio de CIM"] ? row["Cambio de CIM"].toISOString().split("T")[0] : null) : null;
+            row["vacaciones pagadas"] = row["vacaciones pagadas"] ? row["vacaciones pagadas"] || 0 : null;
+            row["vacaciones sin pagar"] = row["vacaciones sin pagar"] ? row["vacaciones sin pagar"] || 0 : null;
+        });
 
-        for (const employee of result) {
-            for (const key of Object.keys(result[0])) {
-                if (key.includes("Fecha") || employee[key] === "FDNAC") employee[key] = employee[key].toISOString().split("T")[0];
-            }
-        }
-
-        const finalResult = [columnNames, ...result];
-        res.send(finalResult);
-    } catch (err) {
-        sendError(res, 500, err);
-    }
+        res.send(rows);
+    });
 };
 
 export const getInactiveEmployeeDataForExcel = async (req: Request, res: Response) => {
