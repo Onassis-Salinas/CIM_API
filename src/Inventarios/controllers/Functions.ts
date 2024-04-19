@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 const pdfjsLib = require("pdfjs-dist");
 
-export const ConvertPdf = async (req: any, res: Response) => {
+export const ConvertJobPdf = async (req: any, res: Response) => {
     const pdfBuffer = req.file.buffer;
 
     const pdfData = new Uint8Array(pdfBuffer);
@@ -21,7 +21,7 @@ export const ConvertPdf = async (req: any, res: Response) => {
                 pageTexts.push(pageText);
             }
             const pdfText = pageTexts.join("\n");
-            processPdfText(pdfText, res);
+            processJob(pdfText, res);
         })
         .catch((err: any) => {
             console.error(err);
@@ -29,7 +29,7 @@ export const ConvertPdf = async (req: any, res: Response) => {
         });
 };
 
-export function processPdfText(text: any, res: Response) {
+export function processJob(text: any, res: Response) {
     let job = "";
     let linesArray = text.split(/\s{3,}| {2}/);
 
@@ -78,4 +78,57 @@ export function processPdfText(text: any, res: Response) {
     });
 
     res.send({ materials, job, date });
+}
+
+export const ConvertImportPdf = async (req: any, res: Response) => {
+    const pdfBuffer = req.file.buffer;
+
+    const pdfData = new Uint8Array(pdfBuffer);
+
+    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+    loadingTask.promise
+        .then(async (pdfDocument: any) => {
+            const numPages = pdfDocument.numPages;
+            console.log(numPages);
+
+            const pageTexts = [];
+
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                const page = await pdfDocument.getPage(pageNum);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map((item: any) => item.str).join(" ");
+                pageTexts.push(pageText);
+            }
+            const pdfText = pageTexts.join("\n");
+            processImport(pdfText, res);
+        })
+        .catch((err: any) => {
+            console.error(err);
+            res.send({ error: "Error al procesar el pdf" });
+        });
+};
+
+export function processImport(text: any, res: Response) {
+    let linesArray: string[] = text.split(/\s{3,}| {2}/);
+
+    const ImportNum = linesArray[linesArray.findIndex((line: string) => line.includes("Tracking :")) + 1];
+    const ImportDate = linesArray[linesArray.findIndex((line: string) => line === ":") + 1];
+
+    const Materials: Array<object> = [];
+    linesArray.forEach((element: string, i: number) => {
+        if (element.includes("•")) {
+            const code = linesArray[i + 1].replaceAll(" ", "");
+
+            let quantity: number;
+            for (let j = i; j < i + 20; j++) {
+                if (!linesArray[j].includes("•") && !isNaN(parseFloat(linesArray[j]))) {
+                    quantity = parseFloat(linesArray[j].split(" ")[0].replaceAll(",", ""));
+                    Materials.push({ code, quantity });
+                    break;
+                }
+            }
+        }
+    });
+
+    return res.send({ ImportDate, ImportNum, Materials });
 }
