@@ -3,7 +3,7 @@ import { Response, Request } from "express";
 import sql from "../../utilities/db2";
 
 export const putMovement = (req: Request, res: Response) => {
-    db.query("UPDATE relations SET Active = ? WHERE MovementId=(select Id from movements where job = ?) and MaterialId=(select Id from materials where Code = ?)", [req.body.Active, req.body.Job, req.body.Code], (err: any, rows: any) => {
+    db.query("UPDATE relations SET Active = ?, ActiveDate = ? WHERE MovementId=(select Id from movements where job = ?) and MaterialId=(select Id from materials where Code = ?)", [req.body.Active, new Date(), req.body.Job, req.body.Code], (err: any, rows: any) => {
         if (err) return res.send({ error: "Error al cambiar el estado" });
         req.body.Amount = req.body.Amount > 0 ? -req.body.Amount : req.body.Amount;
         req.body.Amount = req.body.Active ? req.body.Amount : -req.body.Amount;
@@ -33,6 +33,17 @@ export const getMaterial = (req: Request, res: Response) => {
     });
 };
 
+export const getMaterialResume = async (req: Request, res: Response) => {
+    try {
+        const [result] = await sql.query(
+            "Select movements.Due, movements.Export, movements.Import, movements.Job, relations.Amount, relations.RealAmount, relations.ActiveDate From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where materials.Code = ? and relations.Active = 1 ORDER BY relations.ActiveDate DESC, movements.Job DESC",
+            [req.body.material]
+        );
+        res.send(result);
+    } catch (err) {
+        res.send(err);
+    }
+};
 export const updateAmount = (req: Request, res: Response) => {
     req.body.RealAmount = req.body.RealAmount > 0 ? -req.body.RealAmount : req.body.RealAmount;
     req.body.lastValue = req.body.lastValue > 0 ? -req.body.lastValue : req.body.lastValue;
@@ -105,7 +116,8 @@ export const postOutput = (req: Request, res: Response) => {
             }
 
             for (const values of req.body.movement.textboxes) {
-                await sql.query("insert into relations (MaterialId, MovementId, Amount, RealAmount) values ((select Id from materials where Code = ?),(select Id from movements where Job = ?),?,?)", [values.Material, req.body.movement.job, values.Amount, values.Amount]);
+                const [result] = await sql.query("insert into relations (MaterialId, MovementId, Amount, RealAmount) values ((select Id from materials where Code = ?),(select Id from movements where Job = ?),?,?)", [values.Material, req.body.movement.job, values.Amount, values.Amount]);
+                console.log(result);
             }
             res.send();
         } catch (err) {
