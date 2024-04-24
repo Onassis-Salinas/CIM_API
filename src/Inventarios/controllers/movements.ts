@@ -36,7 +36,7 @@ export const getMaterial = (req: Request, res: Response) => {
 export const getMaterialResume = async (req: Request, res: Response) => {
     try {
         const [result] = await sql.query(
-            "Select movements.Due, movements.Export, movements.Import, movements.Job, relations.Amount, relations.RealAmount, relations.ActiveDate From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where materials.Code = ? and relations.Active = 1 ORDER BY relations.ActiveDate DESC, movements.Job DESC",
+            "Select movements.Due, movements.Export, movements.Import, movements.Job, relations.Amount, relations.RealAmount, relations.ActiveDate, materials.Measurement From relations join materials on materials.Id = relations.MaterialId join movements on movements.Id = relations.MovementId where materials.Code = ? and relations.Active = 1 ORDER BY relations.ActiveDate DESC, movements.Job DESC",
             [req.body.material]
         );
         res.send(result);
